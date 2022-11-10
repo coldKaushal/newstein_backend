@@ -114,38 +114,14 @@ app.post("/updateCategories", (req, res) => {
   console.log("update category requested");
   const email = req.body.email;
   const categories = req.body.categories;
-  let userFound = false;
-  console.log(categories);
-  Preference.findOne({ email: email }, function (err) {
-    if (!err) {
-      userFound = true;
+  Preference.findOneAndUpdate({email: email}, {categories: categories}, {upsert: true}, function(err){
+    if(err){
+      console.log(err);
+      res.send(err);
+    }else{
+      res.send("added");
     }
   });
-  if (!userFound) {
-    const newPreference = new Preference({
-      email: email,
-      categories: categories,
-    });
-    newPreference.save(function (err) {
-      if (!err) {
-        res.send("added new preference");
-      } else {
-        res.send("err in adding new preference");
-      }
-    });
-  } else {
-    Preference.findOneAndUpdate(
-      { email: email },
-      { categories: categories },
-      function (err, place) {
-        if (!err) {
-          res.send(place);
-        } else {
-          res.sendStatus(502);
-        }
-      }
-    );
-  }
 });
 
 app.post("/deleteAllUser", (req, res) => {

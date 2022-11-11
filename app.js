@@ -1,7 +1,12 @@
 const app = require("express")();
 const bodyParser = require("body-parser");
 const PORT = 8000;
+const dotenv = require("dotenv");
+const axios = require("axios");
+const { JSDOM } = require('jsdom');
+const { Readability } = require('@mozilla/readability');
 
+dotenv.config();
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
@@ -12,7 +17,7 @@ const mongoose = require("mongoose");
 
 mongoose
   .connect(
-    "mongodb+srv://kaushal:kaushal007A@newstein.sipzkki.mongodb.net/newstein?retryWrites=true&w=majority",
+    process.env.MONGODB_URL,
     {
       useUnifiedTopology: true,
     }
@@ -123,6 +128,37 @@ app.post("/updateCategories", (req, res) => {
     }
   });
 });
+
+
+app.post("/getFullNews", (req, res)=>{
+  const url = decodeURIComponent(req.body.url);
+  console.log(url);
+  axios.get(url).then(function(r2) {
+
+    // We now have the article HTML, but before we can use Readability to locate the article content we need jsdom to convert it into a DOM object
+    let dom = new JSDOM(r2.data, {
+      url: url
+    });
+
+    // now pass the DOM document into readability to parse
+    let article = new Readability(dom.window.document).parse();
+    // console.log(article);
+    // Done! The article content is in the textContent property
+    // console.log(article.textContent);
+    res.send(article.textContent);
+  })
+})
+
+app.post("/getAllNews", (req, res)=>{
+  axios.get("https://newsapi.org/v2/top-headlines?country=in&apiKey="+process.env.news_API).then(response=>{
+  // console.log(response.data);  
+  console.log("data fetched");
+  res.send(response.data);
+  }).catch(err=> {
+    console.log(err.response.status);
+    res.send(err.response.status);
+  });
+})
 
 app.post("/deleteAllUser", (req, res) => {
   User.deleteMany({}, function (err) {

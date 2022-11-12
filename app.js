@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const PORT = 8000;
 const dotenv = require("dotenv");
 const axios = require("axios");
-const { JSDOM } = require('jsdom');
-const { Readability } = require('@mozilla/readability');
+const { JSDOM } = require("jsdom");
+const { Readability } = require("@mozilla/readability");
 
 dotenv.config();
 app.use(bodyParser.json());
@@ -16,12 +16,9 @@ app.get("/", (req, res) => {
 const mongoose = require("mongoose");
 
 mongoose
-  .connect(
-    process.env.MONGODB_URL,
-    {
-      useUnifiedTopology: true,
-    }
-  )
+  .connect(process.env.MONGODB_URL, {
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.warn("db connection done");
   });
@@ -103,10 +100,10 @@ app.post("/getCategories", (req, res) => {
   console.log(email);
   Preference.findOne({ email: email }, function (err, data) {
     if (!err) {
-      if(data){
+      if (data) {
         console.log(data);
-        res.send(data)
-      }else{
+        res.send(data);
+      } else {
         res.send("no data found");
       }
     } else {
@@ -119,46 +116,51 @@ app.post("/updateCategories", (req, res) => {
   console.log("update category requested");
   const email = req.body.email;
   const categories = req.body.categories;
-  Preference.findOneAndUpdate({email: email}, {categories: categories}, {upsert: true}, function(err){
-    if(err){
-      console.log(err);
-      res.send(err);
-    }else{
-      res.send("added");
+  Preference.findOneAndUpdate(
+    { email: email },
+    { categories: categories },
+    { upsert: true },
+    function (err) {
+      if (err) {
+        console.log(err);
+        res.send(err);
+      } else {
+        res.send("added");
+      }
     }
+  );
+});
+
+app.post("/getFullNews", (req, res) => {
+  const url = decodeURIComponent(req.body.url);
+  console.log(url);
+  axios.get(url).then(function (r2) {
+    let dom = new JSDOM(r2.data, {
+      url: url,
+    });
+    let article = new Readability(dom.window.document).parse();
+    // res.send(article.content);
+    console.log(article.textContent);
+    res.send(article.textContent);
   });
 });
 
-
-app.post("/getFullNews", (req, res)=>{
-  const url = decodeURIComponent(req.body.url);
-  console.log(url);
-  axios.get(url).then(function(r2) {
-
-    // We now have the article HTML, but before we can use Readability to locate the article content we need jsdom to convert it into a DOM object
-    let dom = new JSDOM(r2.data, {
-      url: url
+app.post("/getAllNews", (req, res) => {
+  axios
+    .get(
+      "https://newsapi.org/v2/top-headlines?country=in&apiKey=" +
+        process.env.news_API
+    )
+    .then((response) => {
+      // console.log(response.data);
+      console.log("data fetched");
+      res.send(response.data);
+    })
+    .catch((err) => {
+      console.log(err.response.status);
+      res.send(err.response.status);
     });
-
-    // now pass the DOM document into readability to parse
-    let article = new Readability(dom.window.document).parse();
-    // console.log(article);
-    // Done! The article content is in the textContent property
-    // console.log(article.textContent);
-    res.send(article.textContent);
-  })
-})
-
-app.post("/getAllNews", (req, res)=>{
-  axios.get("https://newsapi.org/v2/top-headlines?country=in&apiKey="+process.env.news_API).then(response=>{
-  // console.log(response.data);  
-  console.log("data fetched");
-  res.send(response.data);
-  }).catch(err=> {
-    console.log(err.response.status);
-    res.send(err.response.status);
-  });
-})
+});
 
 app.post("/deleteAllUser", (req, res) => {
   User.deleteMany({}, function (err) {
@@ -170,15 +172,15 @@ app.post("/deleteAllUser", (req, res) => {
   });
 });
 
-app.post("/deleteAllPreference", (req, res)=>{
-  Preference.deleteMany({}, function(err){
-    if(!err){
+app.post("/deleteAllPreference", (req, res) => {
+  Preference.deleteMany({}, function (err) {
+    if (!err) {
       res.send("deleted all preference");
-    }else{
+    } else {
       res.send("err");
     }
-  })
-})
+  });
+});
 
 app.listen(PORT, () => {
   console.log("yea");

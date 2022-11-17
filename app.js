@@ -10,6 +10,7 @@ dotenv.config();
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
+  console.log("request");
   res.send("a");
 });
 
@@ -37,9 +38,15 @@ const preferenceSchema = new mongoose.Schema({
   interaction: Array,
 });
 
+const userDataSchema = new mongoose.Schema({
+  email: String,
+  likes: Array,
+  bookmark: Array
+})
+
 const User = new mongoose.model("User", userSchema);
 const Preference = new mongoose.model("Preference", preferenceSchema);
-
+const UserData = new mongoose.model("UserData", userDataSchema);
 app.post("/addUser", (req, res) => {
   console.log("Add User request");
   const data = req.body;
@@ -161,6 +168,30 @@ app.post("/getAllNews", (req, res) => {
       res.send(err.response.status);
     });
 });
+
+app.post("/addBookmark", (req, res)=>{
+  const data = req.body;
+  console.log(data);
+  UserData.findOneAndUpdate({email: data.email}, {$push: {bookmark: data.bookmark}}, {upsert: true}, function(err){
+    if(!err){
+      res.send("bookmark added");
+    }else{
+      res.send("err");
+    }
+  })
+
+});
+
+app.post("/fetchBookmark", (req, res)=>{
+  const data = req.body;
+  UserData.findOne({email: data.email}, function(err, data){
+    if(!err){
+      res.send(data);
+    }else{
+      res.send("error in fetching bookmark")
+    }
+  })
+})
 
 app.post("/deleteAllUser", (req, res) => {
   User.deleteMany({}, function (err) {

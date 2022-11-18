@@ -86,7 +86,7 @@ app.post("/getUser", (req, res) => {
     if (!err) {
       //res.sendStatus(200);
       res.append("status", 200);
-      if (data.length !== 0) {
+      if (data && data.length !== 0) {
         res.append("status", 200);
         res.send(data);
       } else {
@@ -159,7 +159,6 @@ app.post("/getAllNews", (req, res) => {
         process.env.news_API
     )
     .then((response) => {
-      // console.log(response.data);
       console.log("data fetched");
       res.send(response.data);
     })

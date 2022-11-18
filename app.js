@@ -85,7 +85,8 @@ app.post("/getUser", (req, res) => {
   User.findOne({ email: email }, function (err, data) {
     if (!err) {
       //res.sendStatus(200);
-      res.append("status", 200);
+      // res.append("status", 200);
+      console.log(data);
       if (data && data.length !== 0) {
         res.append("status", 200);
         res.send(data);
@@ -156,7 +157,7 @@ app.post("/getAllNews", (req, res) => {
   axios
     .get(
       "https://newsapi.org/v2/top-headlines?country=in&apiKey=" +
-        process.env.news_API
+        process.env.NEWS_API
     )
     .then((response) => {
       console.log("data fetched");

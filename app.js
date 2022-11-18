@@ -213,6 +213,10 @@ app.post("/deleteAllPreference", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log("yea");
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port, function(){
+  console.log("server has started at port " + port);
 });

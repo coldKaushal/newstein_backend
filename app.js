@@ -160,7 +160,7 @@ app.post("/getAllNews", (req, res) => {
         process.env.NEWS_API
     )
     .then((response) => {
-      console.log("data fetched");
+      console.log("data fetched successfully");
       res.send(response.data);
     })
     .catch((err) => {

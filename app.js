@@ -5,6 +5,8 @@ const dotenv = require("dotenv");
 const axios = require("axios");
 const { JSDOM } = require("jsdom");
 const { Readability } = require("@mozilla/readability");
+const MonkeyLearn = require("monkeylearn");
+
 
 dotenv.config();
 app.use(bodyParser.json());
@@ -373,6 +375,31 @@ app.post("/deleteAllPreference", (req, res) => {
     }
   });
 });
+
+
+
+
+
+const ml = new MonkeyLearn("f490a97b629a7b1d1038e6fb7597679e266372e4");
+let model_id = "cl_WDyr2Q4F";
+
+
+app.post("/classify", (req, res)=>{
+  console.log("data requested");
+  const text= req.body.data;
+  console.log(text);
+  let data = [];
+  data.push(text);
+  ml.classifiers.classify(model_id, data).then((response) => {
+    console.log(response.body.classification);
+    const data = response.body;
+    res.send(data);
+  });
+  // res.send(data);
+})
+
+
+
 
 let port = process.env.PORT;
 if (port == null || port == "") {

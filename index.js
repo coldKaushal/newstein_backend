@@ -35,43 +35,46 @@ const newsSchema = new mongoose.Schema({
 
 const News = new mongoose.model("News", newsSchema);
 
-app.post("/fillDatabase", (req, res) => {
-  axios
-    .get(
-      "https://newsapi.org/v2/top-headlines?country=in&apiKey=" +
-        process.env.NEWS_API
-    )
-    .then((response) => {
-      const articles = response.data.articles;
-    //   res.send(articles);
-      articles.forEach((item) => {
-        console.log(item.publishedAt);
-        // if(new Date(item.publishedAt)> new Date("2022-12-09T06:13:43Z")){
-          const newNews = new News({
-            author: item.author,
-            title: item.title,
-            description: item.description,
-            url: item.url,
-            urlToImage: item.urlToImage,
-            publishedAt: item.publishedAt,
-            category: '',
-            likes: 0,
-            dislikes: 0,
-          });
-          newNews.save(function(err){
-              if(err){
-                  res.send('error')
-              } 
-          });
-        // }
-      });
-      res.send("db filled");
-    })
-    .catch((err) => {
-      console.log(err.response.status);
-      res.send(err.response.status);
-    });
-});
+// app.post("/fillDatabase", (req, res) => {
+//   axios
+//     .get(
+//       "https://newsapi.org/v2/top-headlines?country=in&apiKey=" +
+//         process.env.NEWS_API
+//     )
+//     .then((response) => {
+//       const articles = response.data.articles;
+//     //   res.send(articles);
+//       articles.forEach((item) => {
+//         console.log(item.publishedAt);
+//         // if(new Date(item.publishedAt)> new Date("2022-12-09T06:13:43Z")){
+          
+//           const newNews = new News({
+//             author: item.author,
+//             title: item.title,
+//             description: item.description,
+//             url: item.url,
+//             urlToImage: item.urlToImage,
+//             publishedAt: item.publishedAt,
+//             category: '',
+//             likes: 0,
+//             dislikes: 0,
+//           });
+//           newNews.save(function(err){
+//               if(err){
+//                   res.send('error')
+//               }
+//           });
+//         // }
+//       });
+//       res.send("db filled");
+//     })
+//     .catch((err) => {
+//       console.log(err.response.status);
+//       res.send(err.response.status);
+//     });
+// });
+
+
 
 let port = process.env.PORT;
 if (port == null || port == "") {

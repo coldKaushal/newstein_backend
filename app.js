@@ -169,35 +169,52 @@ app.post("/getFullNews", (req, res) => {
 });
 
 app.post("/getAllNews", (req, res) => {
-  // axios
-  //   .get(
-  //     "https://newsapi.org/v2/top-headlines?country=in&apiKey=" +
-  //       process.env.NEWS_API
-  //   )
-  //   .then((response) => {
-  //     console.log("data fetched successfully");
-  //     res.send(response.data);
-  //   })
-  //   .catch((err) => {
-  //     console.log(err.response.status);
-  //     res.send(err.response.status);
-  //   });
+  const email = req.body.email;
+
   console.log("get news requested");
-  News.find({}, null, { limit: 1000 }, function (err, docs) {
-    if (err) {
-      // res.status(502);
-      res.send("error");
-    } else {
-      // console.log(docs);
-      if (docs && docs.length !== 0) {
-        // res.status(200);
-        res.send(docs);
-      } else {
-        // res.status(404);
-        res.send("no news found");
+
+  Preference.findOne({email: email}, function(err, docs){
+    if(err){
+      console.log(err);
+      res.send(err);
+    }else{
+      if(docs && docs.categories && docs.categories.length!==0){
+        const categories = docs.categories;
+        News.find({category: {"$in": categories}}, null, { limit: 1000 }, function (err, docs) {
+          if (err) {
+            // res.status(502);
+            res.send("error");
+          } else {
+            // console.log(docs);
+            if (docs && docs.length !== 0) {
+              // res.status(200);
+              res.send(docs);
+            } else {
+              // res.status(404);
+              res.send("no news found");
+            }
+          }
+        });
+      }else{
+        News.find({}, null, { limit: 1000 }, function (err, docs) {
+          if (err) {
+            // res.status(502);
+            res.send("error");
+          } else {
+            // console.log(docs);
+            if (docs && docs.length !== 0) {
+              // res.status(200);
+              res.send(docs);
+            } else {
+              // res.status(404);
+              res.send("no news found");
+            }
+          }
+        });
       }
     }
-  });
+  })
+  
 });
 
 app.post("/addBookmark", (req, res) => {

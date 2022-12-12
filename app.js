@@ -188,6 +188,9 @@ app.post("/getAllNews", (req, res) => {
             // console.log(docs);
             if (docs && docs.length !== 0) {
               // res.status(200);
+              docs.sort(function(a, b){
+                return new Date(b.publishedAt) - new Date(a.publishedAt);
+              });
               res.send(docs);
             } else {
               // res.status(404);
@@ -204,6 +207,9 @@ app.post("/getAllNews", (req, res) => {
             // console.log(docs);
             if (docs && docs.length !== 0) {
               // res.status(200);
+              docs.sort(function(a, b){
+                return new Date(b.publishedAt) - new Date(a.publishedAt);
+              });
               res.send(docs);
             } else {
               // res.status(404);
@@ -241,7 +247,8 @@ app.post("/fetchBookmark", (req, res) => {
   UserData.findOne({ email: data.email }, function (err, data) {
     if (!err) {
       if(data && data.bookmark){
-        res.send(data.bookmark);
+        const dataToSend = data.bookmark.reverse();
+        res.send(dataToSend);
       }else{
         res.send([]);
       }
